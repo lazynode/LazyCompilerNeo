@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using System.Linq;
 using Neo.VM;
+using System;
 
 namespace LazyCompilerNeo
 {
@@ -14,7 +15,7 @@ namespace LazyCompilerNeo
             public void WHILE(XElement node)
             {
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
-                OpCode jmp = (OpCode)System.Enum.Parse(typeof(OpCode), "JMP" + (node.Attribute("instruction")?.Value) ?? "");
+                OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("instruction")?.Value) ?? "");
                 if (node.Attribute("false") is null)
                 {
                     sb.EmitRaw(bytecode);

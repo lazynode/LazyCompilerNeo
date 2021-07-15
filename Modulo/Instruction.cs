@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using Neo.VM;
 using Neo;
+using System;
 
 namespace LazyCompilerNeo
 {
@@ -10,7 +11,7 @@ namespace LazyCompilerNeo
         {
             public Instruction(XElement node) : base(node)
             {
-                sb.Emit((OpCode)System.Enum.Parse(typeof(OpCode), node.Name.LocalName), node.Attribute("oprand")?.Value.HexToBytes());
+                sb.Emit(Enum.Parse<OpCode>(node.Name.LocalName), node.Attribute("oprand")?.Value.HexToBytes());
             }
         };
     }
