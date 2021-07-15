@@ -23,8 +23,12 @@ namespace LazyCompilerNeo
                 {
                     root = root.Parent;
                 }
-                byte maxslot = root.Descendants().Where(v => v.Name.NamespaceName == nameof(Assembly) && v.Name.LocalName == nameof(VAR)).Select(v => byte.Parse(v.Attribute("slot").Value)).Max();
-                sb.Emit(OpCode.INITSSLOT, new byte[] { maxslot });
+                try
+                {
+                    byte maxslot = root.Descendants().Where(v => v.Name.NamespaceName == nameof(Assembly) && v.Name.LocalName == nameof(VAR)).Select(v => byte.Parse(v.Attribute("slot").Value)).Max();
+                    sb.Emit(OpCode.INITSSLOT, new byte[] { (byte)(maxslot + 1) });
+                }
+                catch (InvalidOperationException) { }
                 static_field_inited = true;
             }
             public void WHILE(XElement node)
