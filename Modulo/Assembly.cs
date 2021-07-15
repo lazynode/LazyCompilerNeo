@@ -14,6 +14,13 @@ namespace LazyCompilerNeo
             static bool static_field_inited = false;
             public Assembly(XElement node) : base(node)
             {
+                if (static_field_inited)
+                {
+                    return;
+                }
+                byte maxslot = node.Document.Root.Descendants().Where(v => v.Name.NamespaceName == nameof(Assembly) && v.Name.LocalName == nameof(VAR)).Select(v => byte.Parse(v.Attribute("slot").Value)).Max();
+                sb.Emit(OpCode.INITSSLOT, new byte[] { maxslot });
+                static_field_inited = true;
             }
             public void WHILE(XElement node)
             {
