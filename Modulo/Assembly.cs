@@ -31,16 +31,18 @@ namespace LazyCompilerNeo
                 catch (InvalidOperationException) { }
                 static_field_inited = true;
             }
-            public void WHILE(XElement node)
+            public void SKIP(XElement node)
             {
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
-                OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("instruction")?.Value) ?? "");
-                if (node.Attribute("false") is null)
-                {
-                    sb.EmitRaw(bytecode);
-                    sb.EmitJump(jmp, -bytecode.Length);
-                    return;
-                }
+                OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
+                sb.EmitRaw(bytecode);
+                sb.EmitJump(jmp, -bytecode.Length);
+                return;
+            }
+            public void DOWHILE(XElement node)
+            {
+                byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
+                OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
                 int offset = bytecode.Length + 0x02;
                 if (offset < sbyte.MinValue || offset > sbyte.MaxValue)
                 {
@@ -75,7 +77,7 @@ namespace LazyCompilerNeo
             {
                 byte slot = byte.Parse(node.Attribute("slot").Value);
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
-                switch (node.Attribute("instruction").Value)
+                switch (node.Attribute("act").Value)
                 {
                     case "create":
                         sb.EmitRaw(bytecode);
