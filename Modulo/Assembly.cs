@@ -79,20 +79,16 @@ namespace LazyCompilerNeo
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
                 switch (node.Attribute("act").Value)
                 {
-                    case "create":
+                    case "set":
                         sb.EmitRaw(bytecode);
                         sb.Emit(OpCode.STSFLD, new byte[] { slot });
                         break;
-                    case "read":
+                    case "get":
                         sb.Emit(OpCode.LDSFLD, new byte[] { slot });
                         break;
                     case "update":
                         sb.Emit(OpCode.LDSFLD, new byte[] { slot });
                         sb.EmitRaw(bytecode);
-                        sb.Emit(OpCode.STSFLD, new byte[] { slot });
-                        break;
-                    case "delete":
-                        sb.Emit(OpCode.PUSHNULL);
                         sb.Emit(OpCode.STSFLD, new byte[] { slot });
                         break;
                     default:
