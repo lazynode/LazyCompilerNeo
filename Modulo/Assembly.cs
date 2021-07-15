@@ -88,64 +88,49 @@ namespace LazyCompilerNeo
                     switch (v.Name.LocalName)
                     {
                         case "sign":
-                            sb.Emit(OpCode.SIGN);
-                            break;
                         case "abs":
-                            sb.Emit(OpCode.ABS);
-                            break;
                         case "neg":
-                            sb.Emit(OpCode.NEGATE);
-                            break;
                         case "inc":
-                            sb.Emit(OpCode.INC);
-                            break;
                         case "dec":
-                            sb.Emit(OpCode.DEC);
-                            break;
                         case "sqrt":
-                            sb.Emit(OpCode.SQRT);
-                            break;
                         case "add":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.ADD);
-                            break;
                         case "sub":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.SUB);
-                            break;
                         case "mul":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.MUL);
-                            break;
                         case "div":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.DIV);
-                            break;
                         case "mod":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.MOD);
-                            break;
                         case "pow":
-                            if (v.Value is not null)
-                            {
-                                sb.EmitPush(BigInteger.Parse(v.Value));
-                            }
-                            sb.Emit(OpCode.POW);
+                        case "shl":
+                        case "shr":
+                        case "min":
+                        case "max":
+                            sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.ToUpper()));
+                            break;
+                        case "ladd":
+                        case "lsub":
+                        case "lmul":
+                        case "ldiv":
+                        case "lmod":
+                        case "lpow":
+                        case "lshl":
+                        case "lshr":
+                        case "lmin":
+                        case "lmax":
+                            sb.EmitPush(BigInteger.Parse(v.Value));
+                            sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.Substring(1).ToUpper()));
+                            break;
+                        case "radd":
+                        case "rsub":
+                        case "rmul":
+                        case "rdiv":
+                        case "rmod":
+                        case "rpow":
+                        case "rshl":
+                        case "rshr":
+                        case "rmin":
+                        case "rmax":
+                            sb.EmitPush(BigInteger.Parse(v.Value));
+                            sb.Emit(OpCode.SWAP);
+                            sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.Substring(1).ToUpper()));
                             break;
                         default:
                             throw new ArgumentException();
