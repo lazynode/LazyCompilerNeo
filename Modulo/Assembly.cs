@@ -11,25 +11,8 @@ namespace LazyCompilerNeo
     {
         public class Assembly : Modulo
         {
-            static bool static_field_inited = false;
             public Assembly(XElement node) : base(node)
             {
-                if (static_field_inited)
-                {
-                    return;
-                }
-                XElement root = node;
-                while (root.Parent is not null)
-                {
-                    root = root.Parent;
-                }
-                try
-                {
-                    byte maxslot = root.Descendants().Where(v => v.Name.NamespaceName == nameof(Assembly) && v.Name.LocalName == nameof(VAR)).Select(v => byte.Parse(v.Attribute("slot").Value)).Max();
-                    sb.Emit(OpCode.INITSSLOT, new byte[] { (byte)(maxslot + 1) });
-                }
-                catch (InvalidOperationException) { }
-                static_field_inited = true;
             }
             public void DOWHILE(XElement node)
             {
@@ -72,7 +55,10 @@ namespace LazyCompilerNeo
                         throw new ArgumentException();
                 }
             }
-
+            public void MALLOC(XElement node)
+            {
+                sb.Emit(OpCode.INITSSLOT, new byte[] { byte.Parse(node.Attribute("n").Value) });
+            }
             public void VAR(XElement node)
             {
                 byte slot = byte.Parse(node.Attribute("slot").Value);
