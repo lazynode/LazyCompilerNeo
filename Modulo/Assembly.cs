@@ -81,6 +81,77 @@ namespace LazyCompilerNeo
                         throw new ArgumentException();
                 }
             }
+            public void TRANSFORM(XElement node)
+            {
+                node.Attributes().ToList().ForEach(v =>
+                {
+                    switch (v.Name.LocalName)
+                    {
+                        case "sign":
+                            sb.Emit(OpCode.SIGN);
+                            break;
+                        case "abs":
+                            sb.Emit(OpCode.ABS);
+                            break;
+                        case "neg":
+                            sb.Emit(OpCode.NEGATE);
+                            break;
+                        case "inc":
+                            sb.Emit(OpCode.INC);
+                            break;
+                        case "dec":
+                            sb.Emit(OpCode.DEC);
+                            break;
+                        case "sqrt":
+                            sb.Emit(OpCode.SQRT);
+                            break;
+                        case "add":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.ADD);
+                            break;
+                        case "sub":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.SUB);
+                            break;
+                        case "mul":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.MUL);
+                            break;
+                        case "div":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.DIV);
+                            break;
+                        case "mod":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.MOD);
+                            break;
+                        case "pow":
+                            if (v.Value is not null)
+                            {
+                                sb.EmitPush(BigInteger.Parse(v.Value));
+                            }
+                            sb.Emit(OpCode.POW);
+                            break;
+                        default:
+                            throw new ArgumentException();
+                    }
+                });
+            }
         };
     }
 }
