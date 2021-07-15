@@ -9,12 +9,9 @@ namespace LazyCompilerNeo
     {
         ScriptBuilder sb = new();
         public byte[] Script => sb.ToArray();
-        public Modulo()
-        {
-        }
         public Modulo(XElement node)
         {
-            node.CompileChildren().ForEach(v => sb.EmitRaw(v));
+            this.GetType().GetMethod(node.Name.LocalName)?.Invoke(this, new object[] { node });
         }
     }
 }

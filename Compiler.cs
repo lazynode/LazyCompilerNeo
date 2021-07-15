@@ -9,7 +9,7 @@ namespace LazyCompilerNeo
     {
         public static byte[] Compile(this XElement node)
         {
-            return ((Modulo)Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node)).Script;
+            return ((Modulo)Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo.Plain), node)).Script;
         }
 
         public static List<byte[]> CompileChildren(this XElement node)
