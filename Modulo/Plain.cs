@@ -1,6 +1,4 @@
 using System.Xml.Linq;
-using Neo.VM;
-using Neo;
 
 namespace LazyCompilerNeo
 {
