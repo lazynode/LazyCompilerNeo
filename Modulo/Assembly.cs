@@ -31,7 +31,7 @@ namespace LazyCompilerNeo
                 catch (InvalidOperationException) { }
                 static_field_inited = true;
             }
-            public void SKIP(XElement node)
+            public void DOWHILE(XElement node)
             {
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
                 OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
@@ -39,7 +39,7 @@ namespace LazyCompilerNeo
                 sb.EmitJump(jmp, -bytecode.Length);
                 return;
             }
-            public void DOWHILE(XElement node)
+            public void SKIP(XElement node)
             {
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
                 OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
