@@ -25,7 +25,7 @@ namespace LazyCompilerNeo
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 node.Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
-                    if (v.Name.LocalName != "JMP")
+                    if (v.Name.LocalName.StartsWith("JMP") == false)
                     {
                         return;
                     }
@@ -35,15 +35,16 @@ namespace LazyCompilerNeo
                     }
                     XElement target = node.Root().XPathSelectElement(v.Attribute("target").Value);
                     ScriptBuilder sb = new();
-                    sb.EmitJump(OpCode.JMP_L, position(target) - position(node));
+                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName), position(target) - position(node));
                     sb.UpdateInstruction(node);
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
             }
             public void GOTO(XElement node)
             {
+                OpCode jmp = Enum.Parse<OpCode>($"JMP{(node.Attribute("cond")?.Value.ToUpper()) ?? ""}_L");
                 string target = node.Attribute("target").Value;
                 ScriptBuilder sb = new();
-                sb.EmitJump(OpCode.JMP_L, 0);
+                sb.EmitJump(jmp, 0);
                 sb.UpdateInstruction(node);
                 node.SetAttributeValue("target", target);
             }
