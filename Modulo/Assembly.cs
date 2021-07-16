@@ -12,13 +12,12 @@ namespace LazyCompilerNeo
     {
         public class Assembly : Modulo
         {
-            public static XNamespace NameSpace = nameof(Assembly);
+            public static XNamespace ns = nameof(Assembly);
             public Assembly(XElement node) : base(node)
             {
             }
             public void DOWHILE(XElement node)
             {
-                node.CompileChildren();
                 XElement element = new(Location.ns + "GOTO");
                 element.SetAttributeValue("target", "..");
                 element.SetAttributeValue("cond", node.Attribute("cond")?.Value??"if");
@@ -28,7 +27,6 @@ namespace LazyCompilerNeo
             }
             public void WHILE(XElement node)
             {
-                node.CompileChildren();
                 XElement start = new("lazy");
                 XElement end = new("lazy");
                 var uuidStart = Guid.NewGuid();
@@ -52,7 +50,6 @@ namespace LazyCompilerNeo
             }
             public void IFTHEN(XElement node)
             {
-                node.CompileChildren();
                 XElement end = new("lazy");
                 var uuidEnd = Guid.NewGuid();
                 end.SetAttributeValue("id", uuidEnd);
