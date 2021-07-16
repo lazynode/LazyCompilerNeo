@@ -13,5 +13,13 @@ namespace LazyCompilerNeo
         {
             this.GetType().GetMethod(node.Name.LocalName)?.Invoke(this, new object[] { node });
         }
+
+      
+
+        // if (node.Name.NamespaceName.Length > 0)
+        // {
+        //     sb.Emit(Enum.Parse<OpCode>(node.Name.LocalName), node.Attribute("oprand")?.Value.HexToBytes());
+        // }
+        // node.CompileChildren().ForEach(v => sb.EmitRaw(v));
     }
 }

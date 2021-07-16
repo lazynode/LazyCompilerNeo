@@ -7,7 +7,7 @@ namespace LazyCompilerNeo
     {
         static void Main(string[] args)
         {
-            Console.OpenStandardOutput().Write(XElement.Load(Console.OpenStandardInput()).Compile());
+            Console.OpenStandardOutput().Write(XElement.Load(Console.OpenStandardInput()).Compile().Code());
         }
     }
 }
