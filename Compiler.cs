@@ -9,6 +9,7 @@ namespace LazyCompilerNeo
 {
     static partial class Compiler
     {
+        public static readonly string lazy = "lazy";
         public static byte[] Compiled(this XElement node)
         {
             while (node.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
@@ -56,18 +57,23 @@ namespace LazyCompilerNeo
                 {
                     callback[v]();
                 }
-                if (v.Name.LocalName == "lazy")
+                if (v.Name.LocalName == lazy)
                 {
                     return;
                 }
-                sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName), v.Attribute("oprand")?.Value.HexToBytes());
+                sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.ToUpper()), v.Attribute("oprand")?.Value.HexToBytes());
             });
             return sb.ToArray();
+        }
+        public static void Lazylize(this XElement node)
+        {
+            node.Name = "lazy";
+            node.RemoveAttributes();
         }
         public static void UpdateInstruction(this ScriptBuilder sb, XElement node)
         {
             byte[] bytecode = sb.ToArray();
-            node.Name = ((OpCode)bytecode[0]).ToString();
+            node.Name = ((OpCode)bytecode[0]).ToString().ToLower();
             node.RemoveAttributes();
             node.SetAttributeValue("oprand", bytecode.Skip(1).ToArray().ToHexString());
         }

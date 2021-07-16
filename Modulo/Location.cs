@@ -37,7 +37,7 @@ namespace LazyCompilerNeo
                     }
                     XElement target = v.XPathSelectElement(v.Attribute("target").Value);
                     ScriptBuilder sb = new();
-                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName), position(target) - position(v));
+                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName.ToUpper()), position(target) - position(v));
                     sb.UpdateInstruction(v);
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
             }

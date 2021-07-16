@@ -7,8 +7,6 @@ namespace LazyCompilerNeo
 {
     partial class Modulo
     {
-        ScriptBuilder sb = new();
-        public byte[] Script => sb.ToArray();
         public Modulo(XElement node)
         {
             node.CompileChildren();
