@@ -12,7 +12,7 @@ namespace LazyCompilerNeo
     {
         public class Location : Modulo
         {
-            public static readonly XNamespace NameSpace = nameof(Location);
+            public static readonly XNamespace ns = nameof(Location);
             static Dictionary<XElement, int> length = new();
             public Location(XElement node) : base(node)
             {
