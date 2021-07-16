@@ -16,15 +16,16 @@ namespace LazyCompilerNeo
             static Dictionary<XElement, int> length = new();
             public Location(XElement node) : base(node)
             {
-                if (node.Root().DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
+                XElement root = node.Root();
+                if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
                 {
                     return;
                 }
-                node.Root().Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                root.Code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
                     length[v] = v.CodeLength();
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                node.Root().Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                root.Code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
                     if (v.Name.LocalName.StartsWith("JMP") == false)
                     {
@@ -34,10 +35,10 @@ namespace LazyCompilerNeo
                     {
                         return;
                     }
-                    XElement target = node.Root().XPathSelectElement(v.Attribute("target").Value);
+                    XElement target = root.XPathSelectElement(v.Attribute("target").Value);
                     ScriptBuilder sb = new();
-                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName), position(target) - position(node));
-                    sb.UpdateInstruction(node);
+                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName), position(target) - position(v));
+                    sb.UpdateInstruction(v);
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
             }
             public void GOTO(XElement node)
