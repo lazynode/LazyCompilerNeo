@@ -37,7 +37,7 @@ namespace LazyCompilerNeo
         }
         public static int CodeLength(this XElement node)
         {
-            return Code(node, new()).Length;
+            return Code(node).Length;
         }
         public static byte[] Code(this XElement node)
         {
@@ -46,7 +46,7 @@ namespace LazyCompilerNeo
         public static byte[] Code(this XElement node, Dictionary<XElement, Action> callback)
         {
             ScriptBuilder sb = new();
-            node.Descendants().ToList().ForEach(v =>
+            node.DescendantsAndSelf().ToList().ForEach(v =>
             {
                 if (v.Name.NamespaceName != "")
                 {
