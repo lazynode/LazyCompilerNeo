@@ -12,7 +12,11 @@ namespace LazyCompilerNeo
         public static XElement Compile(this XElement node)
         {
             Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node);
-            return node;
+            if (node.Root().DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
+            {
+                return node;
+            }
+            return Compile(node);
         }
 
         public static void CompileChildren(this XElement node)
