@@ -22,9 +22,9 @@ namespace LazyCompilerNeo
         public static XElement Root(this XElement node)
         {
             XElement root = node;
-            while (node.Parent is not null)
+            while (root.Parent is not null)
             {
-                root = node.Parent;
+                root = root.Parent;
             }
             return root;
         }
