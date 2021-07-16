@@ -19,11 +19,19 @@ namespace LazyCompilerNeo
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
                 OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
                 sb.EmitRaw(bytecode);
+                if (node.Attribute("slot") is not null)
+                {
+                    sb.Emit(OpCode.LDSFLD, new byte[] { byte.Parse(node.Attribute("slot")?.Value) });
+                }
                 sb.EmitJump(jmp, -bytecode.Length);
                 return;
             }
             public void SKIP(XElement node)
             {
+                if (node.Attribute("slot") is not null)
+                {
+                    sb.Emit(OpCode.LDSFLD, new byte[] { byte.Parse(node.Attribute("slot")?.Value) });
+                }
                 byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
                 OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
                 int offset = bytecode.Length + 0x02;
