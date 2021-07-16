@@ -50,7 +50,6 @@ namespace LazyCompilerNeo
                 sb.UpdateInstruction(node);
                 node.SetAttributeValue("target", target);
             }
-
             static int position(XElement node)
             {
                 XElement brother = node.ElementsBeforeSelf().Count() > 0 ? node.ElementsBeforeSelf().Last() : null;
