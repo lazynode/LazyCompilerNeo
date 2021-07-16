@@ -21,8 +21,48 @@ namespace LazyCompilerNeo
                 node.CompileChildren();
                 XElement element = new(Location.ns + "GOTO");
                 element.SetAttributeValue("target", "..");
-                element.SetAttributeValue("cond", node.Attribute("cond")?.Value);
+                element.SetAttributeValue("cond", node.Attribute("cond")?.Value??"if");
                 node.Add(element);
+                node.Name = "lazy";
+                node.RemoveAttributes();
+            }
+            public void WHILE(XElement node)
+            {
+                node.CompileChildren();
+                XElement start = new("lazy");
+                XElement end = new("lazy");
+                var uuidStart = Guid.NewGuid();
+                var uuidEnd = Guid.NewGuid();
+                start.SetAttributeValue("id", uuidStart);
+                end.SetAttributeValue("id", uuidEnd);
+                node.AddFirst(start);
+                node.Add(end);
+
+                XElement skip = new(Location.ns + "GOTO");
+                skip.SetAttributeValue("target", $"../lazy[@id='{uuidEnd}']");
+                node.AddFirst(skip);
+
+                XElement goback = new(Location.ns + "GOTO");
+                goback.SetAttributeValue("target", $"../lazy[@id='{uuidStart}']");
+                goback.SetAttributeValue("cond", node.Attribute("cond")?.Value??"if");
+                node.Add(goback);
+
+                node.Name = "lazy";
+                node.RemoveAttributes();
+            }
+            public void IFTHEN(XElement node)
+            {
+                node.CompileChildren();
+                XElement end = new("lazy");
+                var uuidEnd = Guid.NewGuid();
+                end.SetAttributeValue("id", uuidEnd);
+                node.Add(end);
+
+                XElement skip = new(Location.ns + "GOTO");
+                skip.SetAttributeValue("cond", "ifnot");
+                skip.SetAttributeValue("target", $"../lazy[@id='{uuidEnd}']");
+                node.AddFirst(skip);
+
                 node.Name = "lazy";
                 node.RemoveAttributes();
             }
