@@ -41,10 +41,11 @@ namespace LazyCompilerNeo
             }
             public void GOTO(XElement node)
             {
+                string target = node.Attribute("target").Value;
                 ScriptBuilder sb = new();
                 sb.EmitJump(OpCode.JMP_L, 0);
                 sb.UpdateInstruction(node);
-                node.SetAttributeValue("target", node.Attribute("target").Value);
+                node.SetAttributeValue("target", target);
             }
 
             static int position(XElement node)

@@ -11,6 +11,7 @@ namespace LazyCompilerNeo
         public byte[] Script => sb.ToArray();
         public Modulo(XElement node)
         {
+            node.CompileChildren();
             this.GetType().GetMethod(node.Name.LocalName)?.Invoke(this, new object[] { node });
         }
     }
