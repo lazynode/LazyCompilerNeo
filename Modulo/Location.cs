@@ -35,7 +35,7 @@ namespace LazyCompilerNeo
                     {
                         return;
                     }
-                    XElement target = root.XPathSelectElement(v.Attribute("target").Value);
+                    XElement target = v.XPathSelectElement(v.Attribute("target").Value);
                     ScriptBuilder sb = new();
                     sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName), position(target) - position(v));
                     sb.UpdateInstruction(v);
