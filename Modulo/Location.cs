@@ -20,11 +20,11 @@ namespace LazyCompilerNeo
                 {
                     return;
                 }
-                node.Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                node.Root().Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
                     length[v] = v.CodeLength();
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                node.Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                node.Root().Code(node.Root().DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
                     if (v.Name.LocalName.StartsWith("JMP") == false)
                     {

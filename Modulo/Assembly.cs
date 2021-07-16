@@ -4,6 +4,7 @@ using Neo;
 using Neo.VM;
 using System;
 using System.Numerics;
+using System.Xml.XPath;
 
 namespace LazyCompilerNeo
 {
@@ -15,15 +16,16 @@ namespace LazyCompilerNeo
             public Assembly(XElement node) : base(node)
             {
             }
-            // public void DOWHILE(XElement node)
-            // {
-            //     node.CompileChildren();
-            //     // byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
-            //     OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
-            //     // node.Add(element);
-            //     ScriptBuilder sb = new();
-            //     sb.EmitJump(jmp, -bytecode.Length);
-            // }
+            public void DOWHILE(XElement node)
+            {
+                node.CompileChildren();
+                XElement element = new(Location.ns + "GOTO");
+                element.SetAttributeValue("target", "..");
+                element.SetAttributeValue("cond", node.Attribute("cond")?.Value);
+                node.Add(element);
+                node.Name = "lazy";
+                node.RemoveAttributes();
+            }
             // public void SKIP(XElement node)
             // {
             //     if (node.Attribute("slot") is not null)
