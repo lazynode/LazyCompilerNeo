@@ -49,11 +49,11 @@ namespace LazyCompilerNeo
                 {
                     callback[v]();
                 }
-                if (node.Name.LocalName == "lazy")
+                if (v.Name.LocalName == "lazy")
                 {
                     return;
                 }
-                sb.Emit(Enum.Parse<OpCode>(node.Name.LocalName), node.Attribute("oprand")?.Value.HexToBytes());
+                sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName), v.Attribute("oprand")?.Value.HexToBytes());
             });
             return sb.ToArray();
         }
