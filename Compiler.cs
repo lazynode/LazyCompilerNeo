@@ -9,14 +9,17 @@ namespace LazyCompilerNeo
 {
     static partial class Compiler
     {
-        public static XElement Compile(this XElement node)
+        public static byte[] Compiled(this XElement node)
+        {
+            while (node.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
+            {
+                Compile(node);
+            }
+            return node.Code();
+        }
+        public static void Compile(this XElement node)
         {
             Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node);
-            if (node.Root().DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
-            {
-                return node;
-            }
-            return Compile(node);
         }
 
         public static void CompileChildren(this XElement node)
