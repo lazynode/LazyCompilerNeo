@@ -9,8 +9,8 @@ namespace LazyCompilerNeo
     {
         public Modulo(XElement node)
         {
-            node.CompileChildren();
-            this.GetType().GetMethod(node.Name.LocalName.ToUpper())?.Invoke(this, new object[] { node });
+            node.compile_children();
+            GetType().GetMethod(node.Name.LocalName.ToUpper())?.Invoke(this, new object[] { node });
         }
     }
 }

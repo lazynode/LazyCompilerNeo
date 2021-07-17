@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml.Linq;
 
 namespace LazyCompilerNeo
@@ -7,7 +8,12 @@ namespace LazyCompilerNeo
     {
         static void Main(string[] args)
         {
-            Console.OpenStandardOutput().Write(XElement.Load(Console.OpenStandardInput()).Compiled());
+            XElement root = Environment.GetEnvironmentVariable("I")?.loadxml() ?? XElement.Load(Console.OpenStandardInput());
+            Console.OpenStandardOutput().Write(root.compiled(int.Parse(Environment.GetEnvironmentVariable("COMPILETIME") ?? int.MaxValue.ToString())));
+            if (Environment.GetEnvironmentVariable("DEBUG") is not null)
+            {
+                Console.Error.WriteLine(root);
+            }
         }
     }
 }

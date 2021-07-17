@@ -18,88 +18,42 @@ namespace LazyCompilerNeo
             }
             public void DOWHILE(XElement node)
             {
-                XElement element = new(Location.ns + "GOTO");
-                element.SetAttributeValue("target", "..");
-                element.SetAttributeValue("cond", node.Attribute("cond")?.Value??"if");
-                node.Add(element);
-                node.Name = "lazy";
-                node.RemoveAttributes();
+                node.lazylize();
+                node.Add(new XElement(Location.ns + "goto").attr("target", "..").attr("cond", node.attr("cond") ?? "if"));
             }
             public void WHILE(XElement node)
             {
-                XElement start = new("lazy");
-                XElement end = new("lazy");
-                var uuidStart = Guid.NewGuid();
-                var uuidEnd = Guid.NewGuid();
-                start.SetAttributeValue("id", uuidStart);
-                end.SetAttributeValue("id", uuidEnd);
-                node.AddFirst(start);
-                node.Add(end);
-
-                XElement skip = new(Location.ns + "GOTO");
-                skip.SetAttributeValue("target", $"../lazy[@id='{uuidEnd}']");
-                node.AddFirst(skip);
-
-                XElement goback = new(Location.ns + "GOTO");
-                goback.SetAttributeValue("target", $"../lazy[@id='{uuidStart}']");
-                goback.SetAttributeValue("cond", node.Attribute("cond")?.Value??"if");
-                node.Add(goback);
-
-                node.Name = "lazy";
-                node.RemoveAttributes();
+                node.lazylize();
+                Guid start = Guid.NewGuid();
+                Guid stop = Guid.NewGuid();
+                node.AddFirst(new XElement("lazy").attr("id", start));
+                node.Add(new XElement("lazy").attr("id", stop));
+                node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{stop}']"));
+                node.Add(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{start}']").attr("cond", node.attr("cond") ?? "if"));
             }
-            public void IFTHEN(XElement node)
+            public void IF(XElement node)
             {
-                XElement end = new("lazy");
-                var uuidEnd = Guid.NewGuid();
-                end.SetAttributeValue("id", uuidEnd);
-                node.Add(end);
-
-                XElement skip = new(Location.ns + "GOTO");
-                skip.SetAttributeValue("cond", "ifnot");
-                skip.SetAttributeValue("target", $"../lazy[@id='{uuidEnd}']");
-                node.AddFirst(skip);
-
-                node.Name = "lazy";
-                node.RemoveAttributes();
+                node.lazylize();
+                Guid end = Guid.NewGuid();
+                node.Add(new XElement("lazy").attr("id", end));
+                node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
             }
-            // public void SKIP(XElement node)
-            // {
-            //     if (node.Attribute("slot") is not null)
-            //     {
-            //         sb.Emit(OpCode.LDSFLD, new byte[] { byte.Parse(node.Attribute("slot")?.Value) });
-            //     }
-            //     byte[] bytecode = node.CompileChildren().SelectMany(v => v).ToArray();
-            //     OpCode jmp = Enum.Parse<OpCode>("JMP" + (node.Attribute("cond")?.Value) ?? "");
-            //     int offset = bytecode.Length + 0x02;
-            //     if (offset < sbyte.MinValue || offset > sbyte.MaxValue)
-            //     {
-            //         sb.EmitJump(jmp, offset);
-            //     }
-            //     else
-            //     {
-            //         sb.EmitJump(jmp, offset + 0x02);
-            //     }
-            //     sb.EmitRaw(bytecode);
-            // }
-            // public void PUSH(XElement node)
-            // {
-            //     XAttribute attr = node.Attributes().First();
-            //     switch (attr.Name.LocalName)
-            //     {
-            //         case "int":
-            //             sb.EmitPush(BigInteger.Parse(attr.Value));
-            //             break;
-            //         case "string":
-            //             sb.EmitPush(attr.Value);
-            //             break;
-            //         case "bytes":
-            //             sb.EmitPush(attr.Value.HexToBytes());
-            //             break;
-            //         default:
-            //             throw new ArgumentException();
-            //     }
-            // }
+            public void INT(XElement node)
+            {
+                new ScriptBuilder().EmitPush(BigInteger.Parse(node.attr("val"))).construct(node);
+            }
+            public void STRING(XElement node)
+            {
+                new ScriptBuilder().EmitPush(node.attr("val")).construct(node);
+            }
+            public void BYTES(XElement node)
+            {
+                new ScriptBuilder().EmitPush(node.attr("val").HexToBytes()).construct(node);
+            }
+            public void BOOL(XElement node)
+            {
+                new ScriptBuilder().EmitPush(bool.Parse(node.attr("val"))).construct(node);
+            }
             // public void MALLOC(XElement node)
             // {
             //     sb.Emit(OpCode.INITSSLOT, new byte[] { byte.Parse(node.Attribute("n").Value) });

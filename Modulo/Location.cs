@@ -16,44 +16,42 @@ namespace LazyCompilerNeo
             static Dictionary<XElement, int> length = new();
             public Location(XElement node) : base(node)
             {
-                XElement root = node.Root();
-                if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Count() > 0)
+                XElement root = node.root();
+                if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any())
                 {
                     return;
                 }
-                root.Code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
-                    length[v] = v.CodeLength();
-                })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
-                root.Code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                    length[v] = v.code().Length;
+                })).ToDictionary(kv => kv.Key, kv => kv.Value));
+                root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
-                    if (v.Name.LocalName.StartsWith("JMP") == false)
+                    if (v.Name.LocalName.StartsWith("jmp") == false)
                     {
                         return;
                     }
-                    if (v.Attribute("target") is null)
+                    if (v.attr("target") is null)
                     {
                         return;
                     }
-                    XElement target = v.XPathSelectElement(v.Attribute("target").Value);
-                    ScriptBuilder sb = new();
-                    sb.EmitJump(Enum.Parse<OpCode>(v.Name.LocalName.ToUpper()), position(target) - position(v));
-                    sb.UpdateInstruction(v);
+                    new ScriptBuilder().EmitJump(v.Name.LocalName.opcode(), position(v.XPathSelectElement(v.attr("target"))) - position(v)).construct(v);
                 })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
             }
             public void GOTO(XElement node)
             {
-                OpCode jmp = Enum.Parse<OpCode>($"JMP{(node.Attribute("cond")?.Value.ToUpper()) ?? ""}_L");
-                string target = node.Attribute("target").Value;
-                ScriptBuilder sb = new();
-                sb.EmitJump(jmp, 0);
-                sb.UpdateInstruction(node);
-                node.SetAttributeValue("target", target);
+                OpCode jmp = $"JMP{(node.attr("cond")?.ToUpper()) ?? ""}_L".opcode();
+                string target = node.attr("target") ?? ".";
+                new ScriptBuilder().EmitJump(jmp, 0).construct(node);
+                node.attr("target", target);
             }
             static int position(XElement node)
             {
-                XElement brother = node.ElementsBeforeSelf().Count() > 0 ? node.ElementsBeforeSelf().Last() : null;
-                return brother != null ? position(brother) + length[brother] : node.Parent != null ? position(node.Parent) : 0;
+                if (node.Parent is null)
+                {
+                    return node.ElementsBeforeSelf().Select(v => length[v]).Sum();
+                }
+                return position(node.Parent) + node.ElementsBeforeSelf().Select(v => length[v]).Sum();
             }
         };
     }
