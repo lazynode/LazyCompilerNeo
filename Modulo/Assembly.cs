@@ -5,6 +5,7 @@ using Neo.VM;
 using System;
 using System.Numerics;
 using System.Xml.XPath;
+using Neo.SmartContract;
 
 namespace LazyCompilerNeo
 {
@@ -18,25 +19,25 @@ namespace LazyCompilerNeo
             }
             public void DOWHILE(XElement node)
             {
-                node.lazylize();
                 node.Add(new XElement(Location.ns + "goto").attr("target", "..").attr("cond", node.attr("cond") ?? "if"));
+                node.lazylize();
             }
             public void WHILE(XElement node)
             {
-                node.lazylize();
                 Guid start = Guid.NewGuid();
                 Guid stop = Guid.NewGuid();
                 node.AddFirst(new XElement("lazy").attr("id", start));
                 node.Add(new XElement("lazy").attr("id", stop));
                 node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{stop}']"));
                 node.Add(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{start}']").attr("cond", node.attr("cond") ?? "if"));
+                node.lazylize();
             }
             public void IF(XElement node)
             {
-                node.lazylize();
                 Guid end = Guid.NewGuid();
                 node.Add(new XElement("lazy").attr("id", end));
                 node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
+                node.lazylize();
             }
             public void INT(XElement node)
             {
@@ -53,6 +54,18 @@ namespace LazyCompilerNeo
             public void BOOL(XElement node)
             {
                 new ScriptBuilder().EmitPush(bool.Parse(node.attr("val"))).construct(node);
+            }
+            public void SYSCALL(XElement node)
+            {
+                new ScriptBuilder().EmitSysCall(new InteropDescriptor() { Name = node.attr("name") }.Hash).construct(node);
+            }
+            public void CONTRACTCALL(XElement node)
+            {
+                node.Add(new ScriptBuilder().EmitPush(Enum.Parse<CallFlags>(node.Attribute("flag")?.Value ?? "All")).construct(new XElement(Compiler.lazy)));
+                node.Add(new ScriptBuilder().EmitPush(node.attr("method")).construct(new XElement(Compiler.lazy)));
+                node.Add(new ScriptBuilder().EmitPush(UInt160.Parse(node.attr("hash"))).construct(new XElement(Compiler.lazy)));
+                node.Add(new XElement(Assembly.ns + "syscall").attr("name", "System.Contract.Call"));
+                node.lazylize();
             }
             // public void MALLOC(XElement node)
             // {
@@ -79,62 +92,6 @@ namespace LazyCompilerNeo
             //         default:
             //             throw new ArgumentException();
             //     }
-            // }
-            // public void TRANSFORM(XElement node)
-            // {
-            //     node.Attributes().ToList().ForEach(v =>
-            //     {
-            //         switch (v.Name.LocalName)
-            //         {
-            //             case "sign":
-            //             case "abs":
-            //             case "neg":
-            //             case "inc":
-            //             case "dec":
-            //             case "sqrt":
-            //             case "add":
-            //             case "sub":
-            //             case "mul":
-            //             case "div":
-            //             case "mod":
-            //             case "pow":
-            //             case "shl":
-            //             case "shr":
-            //             case "min":
-            //             case "max":
-            //                 sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.ToUpper()));
-            //                 break;
-            //             case "ladd":
-            //             case "lsub":
-            //             case "lmul":
-            //             case "ldiv":
-            //             case "lmod":
-            //             case "lpow":
-            //             case "lshl":
-            //             case "lshr":
-            //             case "lmin":
-            //             case "lmax":
-            //                 sb.EmitPush(BigInteger.Parse(v.Value));
-            //                 sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.Substring(1).ToUpper()));
-            //                 break;
-            //             case "radd":
-            //             case "rsub":
-            //             case "rmul":
-            //             case "rdiv":
-            //             case "rmod":
-            //             case "rpow":
-            //             case "rshl":
-            //             case "rshr":
-            //             case "rmin":
-            //             case "rmax":
-            //                 sb.EmitPush(BigInteger.Parse(v.Value));
-            //                 sb.Emit(OpCode.SWAP);
-            //                 sb.Emit(Enum.Parse<OpCode>(v.Name.LocalName.Substring(1).ToUpper()));
-            //                 break;
-            //             default:
-            //                 throw new ArgumentException();
-            //         }
-            //     });
             // }
         };
     }

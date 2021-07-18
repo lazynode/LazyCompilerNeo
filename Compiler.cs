@@ -51,7 +51,6 @@ namespace LazyCompilerNeo
         {
             node.Name = lazy;
             node.RemoveAttributes();
-            node.SetValue(string.Empty);
         }
         public static string attr(this XElement node, XName name)
         {
@@ -78,12 +77,13 @@ namespace LazyCompilerNeo
             }
             return sb.Emit(node.Name.LocalName.opcode(), node.Attribute("oprand")?.Value.HexToBytes());
         }
-        public static void construct(this ScriptBuilder sb, XElement node)
+        public static XElement construct(this ScriptBuilder sb, XElement node)
         {
             byte[] bytecode = sb.ToArray();
             node.Name = bytecode[0].cmd();
             node.RemoveAll();
             node.SetAttributeValue("oprand", bytecode.Skip(1).ToArray().ToHexString());
+            return node;
         }
         public static OpCode opcode(this string str)
         {

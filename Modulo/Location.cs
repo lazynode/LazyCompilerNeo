@@ -42,8 +42,7 @@ namespace LazyCompilerNeo
             {
                 OpCode jmp = $"JMP{(node.attr("cond")?.ToUpper()) ?? ""}_L".opcode();
                 string target = node.attr("target") ?? ".";
-                new ScriptBuilder().EmitJump(jmp, 0).construct(node);
-                node.attr("target", target);
+                new ScriptBuilder().EmitJump(jmp, 0).construct(node).attr("target", target);
             }
             static int position(XElement node)
             {
