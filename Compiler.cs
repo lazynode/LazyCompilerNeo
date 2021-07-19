@@ -14,7 +14,7 @@ namespace LazyCompilerNeo
         {
             if (left == 0)
             {
-                return node.code();
+                return null;
             }
             if (node.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any() == false)
             {
