@@ -26,8 +26,8 @@ namespace LazyCompilerNeo
             {
                 Guid start = Guid.NewGuid();
                 Guid stop = Guid.NewGuid();
-                node.AddFirst(new XElement("lazy").attr("id", start));
-                node.Add(new XElement("lazy").attr("id", stop));
+                node.AddFirst(new XElement(Compiler.lazy).attr("id", start));
+                node.Add(new XElement(Compiler.lazy).attr("id", stop));
                 node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{stop}']"));
                 node.Add(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{start}']").attr("cond", node.attr("cond") ?? "if"));
                 node.lazylize();
@@ -35,7 +35,7 @@ namespace LazyCompilerNeo
             public void IF(XElement node)
             {
                 Guid end = Guid.NewGuid();
-                node.Add(new XElement("lazy").attr("id", end));
+                node.Add(new XElement(Compiler.lazy).attr("id", end));
                 node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
                 node.lazylize();
             }
