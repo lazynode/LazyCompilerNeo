@@ -17,8 +17,11 @@ namespace LazyCompilerNeo
             }
             public void FUNC(XElement node)
             {
-                node.AddFirst(new ScriptBuilder().Emit(OpCode.INITSLOT, new byte[] { byte.Parse(node.attr("vars")??"0"), byte.Parse(node.attr("args") ?? "0") }).construct(new XElement(Compiler.lazy)));
-                node.AddFirst(new XElement(Compiler.lazy).attr("function", node.attr("name")));
+                if (node.attr("inline") is null)
+                {
+                    node.AddFirst(new ScriptBuilder().Emit(OpCode.INITSLOT, new byte[] { byte.Parse(node.attr("vars") ?? "0"), byte.Parse(node.attr("args") ?? "0") }).construct(new XElement(Compiler.lazy)));
+                }
+                node.AddFirst(new XElement(Compiler.lazy).attr("function", node.attr("name")).attr("inline", node.attr("inline")));
             }
             public void ARG(XElement node)
             {
@@ -31,7 +34,7 @@ namespace LazyCompilerNeo
                     throw new Exception();
                 }
                 int index = int.Parse(node.Parent.attr("args") ?? "0");
-                node.Parent.attr("args", $"{index+1}");
+                node.Parent.attr("args", $"{index + 1}");
                 node.Add(new XElement(Compiler.lazy).attr("type", "arg").attr("name", node.attr("name")).attr("index", $"{index}"));
             }
             public void VAR(XElement node)
@@ -107,9 +110,17 @@ namespace LazyCompilerNeo
             {
                 XElement get = new XElement(Compiler.lazy, node.Descendants(ns + nameof(GET).ToLower()).Reverse().ToList());
                 XElement set = new XElement(Compiler.lazy, node.Descendants(ns + nameof(SET).ToLower()).ToList());
+                XElement target = node.XPathSelectElement($"//lazy[@function='{node.attr("name")}']");
                 node.Elements().Remove();
                 node.Add(get);
-                node.Add(new XElement(Assembly.ns + "invoke").attr("target", $"//lazy[@function='{node.attr("name")}']"));
+                if (target?.attr("inline") is null)
+                {
+                    node.Add(new XElement(Assembly.ns + "invoke").attr("target", $"//lazy[@function='{node.attr("name")}']"));
+                }
+                else
+                {
+                    target.ElementsAfterSelf().ToList().ForEach(v => node.Add(new XElement(v)));
+                }
                 node.Add(set);
             }
         };
