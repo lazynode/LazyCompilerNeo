@@ -19,8 +19,7 @@ namespace LazyCompilerNeo
             }
             public void DOWHILE(XElement node)
             {
-                node.Add(new XElement(Location.ns + "goto").attr("target", "..").attr("cond", node.attr("cond") ?? "if"));
-                node.lazylize();
+                node.Add(new XElement(ns + "goto").attr("target", "..").attr("cond", node.attr("cond") ?? "if"));
             }
             public void WHILE(XElement node)
             {
@@ -28,16 +27,14 @@ namespace LazyCompilerNeo
                 Guid stop = Guid.NewGuid();
                 node.AddFirst(new XElement(Compiler.lazy).attr("id", start));
                 node.Add(new XElement(Compiler.lazy).attr("id", stop));
-                node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{stop}']"));
-                node.Add(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{start}']").attr("cond", node.attr("cond") ?? "if"));
-                node.lazylize();
+                node.AddFirst(new XElement(ns + "goto").attr("target", $"../lazy[@id='{stop}']"));
+                node.Add(new XElement(ns + "goto").attr("target", $"../lazy[@id='{start}']").attr("cond", node.attr("cond") ?? "if"));
             }
             public void IF(XElement node)
             {
                 Guid end = Guid.NewGuid();
                 node.Add(new XElement(Compiler.lazy).attr("id", end));
-                node.AddFirst(new XElement(Location.ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
-                node.lazylize();
+                node.AddFirst(new XElement(ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
             }
             public void INT(XElement node)
             {
@@ -65,7 +62,17 @@ namespace LazyCompilerNeo
                 node.Add(new ScriptBuilder().EmitPush(node.attr("method")).construct(new XElement(Compiler.lazy)));
                 node.Add(new ScriptBuilder().EmitPush(UInt160.Parse(node.attr("hash"))).construct(new XElement(Compiler.lazy)));
                 node.Add(new XElement(Assembly.ns + "syscall").attr("name", "System.Contract.Call"));
-                node.lazylize();
+            }
+            public void GOTO(XElement node)
+            {
+                OpCode jmp = $"JMP{(node.attr("cond")?.ToUpper()) ?? ""}_L".opcode();
+                string target = node.attr("target") ?? ".";
+                new ScriptBuilder().EmitJump(jmp, 0).construct(node).attr("target", target);
+            }
+            public void INVOKE(XElement node)
+            {
+                string target = node.attr("target") ?? ".";
+                new ScriptBuilder().Emit(OpCode.CALL_L, BitConverter.GetBytes(0)).construct(node).attr("target", target);
             }
             // public void MALLOC(XElement node)
             // {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Neo;
 using Neo.VM;
+using System.Xml.XPath;
 
 namespace LazyCompilerNeo
 {
@@ -21,11 +22,30 @@ namespace LazyCompilerNeo
                 return node.code();
             }
             node.compile();
-            return node.compiled(left--);
+            return node.compiled(--left);
         }
         public static void compile(this XElement node)
         {
             Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node);
+            Dictionary<XElement, int> length = new();
+            XElement root = node.root();
+            if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any())
+            {
+                return;
+            }
+            root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+            {
+                length[v] = v.code().Length;
+            })).ToDictionary(kv => kv.Key, kv => kv.Value));
+            root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+            {
+                if (v.attr("target") is null)
+                {
+                    return;
+                }
+
+                new ScriptBuilder().Emit(v.Name.LocalName.opcode(), BitConverter.GetBytes(v.XPathSelectElement(v.attr("target")).position(length) - v.position(length))).construct(v);
+            })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
         }
         public static void compile_children(this XElement node)
         {
@@ -60,6 +80,14 @@ namespace LazyCompilerNeo
         {
             node.SetAttributeValue(name, value);
             return node;
+        }
+        public static int position(this XElement node, Dictionary<XElement, int> length)
+        {
+            if (node.Parent is null)
+            {
+                return node.ElementsBeforeSelf().Select(v => length[v]).Sum();
+            }
+            return position(node.Parent, length) + node.ElementsBeforeSelf().Select(v => length[v]).Sum();
         }
         public static ScriptBuilder emit(this ScriptBuilder sb, XElement node, Dictionary<XElement, Action> callback)
         {
