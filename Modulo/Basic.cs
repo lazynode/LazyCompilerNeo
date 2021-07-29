@@ -116,6 +116,35 @@ namespace LazyCompilerNeo
                 XElement ret = func.XPathSelectElement($"./lazy/lazy[@name='{node.attr("name")}'{(node.attr("type") is null ? "" : $" and @type='{node.attr("type")}'")}]");
                 node.Add(new XElement(ns + nameof(SET).ToLower()).attr("index", ret.attr("index")).attr("type", ret.attr("type")));
             }
+            public void IF(XElement node)
+            {
+                XElement element = new XElement(Assembly.ns + "if", node.Elements().ToList());
+                node.Elements().Remove();
+                node.Add(new XElement(ns + nameof(LOAD).ToLower()).attr("type", node.attr("type")).attr("name", node.attr("name")));
+                node.Add(element);
+            }
+            public void ELSE(XElement node)
+            {
+                XElement element = new XElement(Assembly.ns + "else", node.Elements().ToList());
+                node.Elements().Remove();
+                node.Add(new XElement(ns + nameof(LOAD).ToLower()).attr("type", node.attr("type")).attr("name", node.attr("name")));
+                node.Add(element);
+            }
+            public void DOWHILE(XElement node)
+            {
+                node.Add(new XElement(ns + nameof(LOAD).ToLower()).attr("type", node.attr("type")).attr("name", node.attr("name")));
+                XElement element = new XElement(Assembly.ns + "dowhile", node.Elements().ToList());
+                node.Elements().Remove();
+                node.Add(element);
+            }
+            public void WHILE(XElement node)
+            {
+                node.Add(new XElement(ns + nameof(LOAD).ToLower()).attr("type", node.attr("type")).attr("name", node.attr("name")));
+                XElement element = new XElement(Assembly.ns + "while", node.Elements().ToList());
+                node.Elements().Remove();
+                node.Add(new XElement(ns + nameof(LOAD).ToLower()).attr("type", node.attr("type")).attr("name", node.attr("name")));
+                node.Add(element);
+            }
             public void RETURN(XElement node)
             {
                 XElement get = new XElement(Compiler.lazy, node.Descendants(ns + nameof(GET).ToLower()).Reverse().ToList());

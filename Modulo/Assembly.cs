@@ -36,6 +36,12 @@ namespace LazyCompilerNeo
                 node.Add(new XElement(Compiler.lazy).attr("id", end));
                 node.AddFirst(new XElement(ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "ifnot"));
             }
+            public void ELSE(XElement node)
+            {
+                Guid end = Guid.NewGuid();
+                node.Add(new XElement(Compiler.lazy).attr("id", end));
+                node.AddFirst(new XElement(ns + "goto").attr("target", $"../lazy[@id='{end}']").attr("cond", "if"));
+            }
             public void INT(XElement node)
             {
                 new ScriptBuilder().EmitPush(BigInteger.Parse(node.attr("val"))).construct(node);
