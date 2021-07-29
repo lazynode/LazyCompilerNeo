@@ -61,6 +61,19 @@ namespace LazyCompilerNeo
                     case "arg":
                         node.Add(new ScriptBuilder().Emit(OpCode.LDARG, new byte[] { byte.Parse(node.attr("index")) }).construct(new XElement(Compiler.lazy)));
                         break;
+                    case "literal":
+                        switch (node.attr("datatype"))
+                        {
+                            case "int":
+                            case "bool":
+                            case "string":
+                            case "bytes":
+                                node.Add(new XElement(Assembly.ns + node.attr("datatype")).attr("val", node.attr("val")));
+                                break;
+                            default:
+                                throw new Exception();
+                        }
+                        break;
                     default:
                         throw new Exception();
                 }
@@ -78,6 +91,10 @@ namespace LazyCompilerNeo
                     default:
                         throw new Exception();
                 }
+            }
+            public void LITERAL(XElement node)
+            {
+                node.Add(new XElement(ns + nameof(GET).ToLower()).attr("datatype", node.attr("type")).attr("val", node.attr("val")).attr("type", "literal"));
             }
             public void LOAD(XElement node)
             {
