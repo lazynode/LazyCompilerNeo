@@ -19,7 +19,12 @@ namespace LazyCompilerNeo
             {
                 if (node.attr("inline") is null)
                 {
-                    node.AddFirst(new ScriptBuilder().Emit(OpCode.INITSLOT, new byte[] { byte.Parse(node.attr("vars") ?? "0"), byte.Parse(node.attr("args") ?? "0") }).construct(new XElement(Compiler.lazy)));
+                    byte vars = byte.Parse(node.attr("vars") ?? "0");
+                    byte args = byte.Parse(node.attr("args") ?? "0");
+                    if (vars + args > 0)
+                    {
+                        node.AddFirst(new ScriptBuilder().Emit(OpCode.INITSLOT, new byte[] { byte.Parse(node.attr("vars") ?? "0"), byte.Parse(node.attr("args") ?? "0") }).construct(new XElement(Compiler.lazy)));
+                    }
                 }
                 node.AddFirst(new XElement(Compiler.lazy).attr("function", node.attr("name")).attr("inline", node.attr("inline")));
             }
