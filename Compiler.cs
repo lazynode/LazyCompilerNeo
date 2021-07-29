@@ -19,6 +19,19 @@ namespace LazyCompilerNeo
             }
             if (node.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any() == false)
             {
+                Dictionary<XElement, int> length = new();
+                node.code(node.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                {
+                    length[v] = v.code().Length;
+                })).ToDictionary(kv => kv.Key, kv => kv.Value));
+                node.code(node.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
+                {
+                    if (v.attr("target") is null)
+                    {
+                        return;
+                    }
+                    new ScriptBuilder().Emit(v.Name.LocalName.opcode(), BitConverter.GetBytes(v.XPathSelectElement(v.attr("target")).position(length) - v.position(length))).construct(v);
+                })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
                 return node.code();
             }
             node.compile();
@@ -27,28 +40,6 @@ namespace LazyCompilerNeo
         public static void compile(this XElement node)
         {
             Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node);
-            Dictionary<XElement, int> length = new();
-            XElement root = node.root();
-            if (node != root)
-            {
-                return;
-            }
-            if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any())
-            {
-                return;
-            }
-            root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
-            {
-                length[v] = v.code().Length;
-            })).ToDictionary(kv => kv.Key, kv => kv.Value));
-            root.code(root.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
-            {
-                if (v.attr("target") is null)
-                {
-                    return;
-                }
-                new ScriptBuilder().Emit(v.Name.LocalName.opcode(), BitConverter.GetBytes(v.XPathSelectElement(v.attr("target")).position(length) - v.position(length))).construct(v);
-            })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
         }
         public static void compile_children(this XElement node)
         {
