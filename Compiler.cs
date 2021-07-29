@@ -20,6 +20,7 @@ namespace LazyCompilerNeo
             if (node.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any() == false)
             {
                 Dictionary<XElement, int> length = new();
+                node.Descendants().Where(v => v.attr("del") is not null).ToList().ForEach(v => v.RemoveAll());
                 node.code(node.DescendantsAndSelf().Select(v => KeyValuePair.Create<XElement, Action>(v, () =>
                 {
                     length[v] = v.code().Length;
