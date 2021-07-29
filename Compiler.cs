@@ -29,6 +29,10 @@ namespace LazyCompilerNeo
             Activator.CreateInstance(typeof(Modulo).GetNestedType(node.Name.NamespaceName) ?? typeof(Modulo), node);
             Dictionary<XElement, int> length = new();
             XElement root = node.root();
+            if (node != root)
+            {
+                return;
+            }
             if (root.DescendantsAndSelf().Where(v => v.Name.NamespaceName.Length > 0).Any())
             {
                 return;
@@ -43,7 +47,6 @@ namespace LazyCompilerNeo
                 {
                     return;
                 }
-
                 new ScriptBuilder().Emit(v.Name.LocalName.opcode(), BitConverter.GetBytes(v.XPathSelectElement(v.attr("target")).position(length) - v.position(length))).construct(v);
             })).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
         }
