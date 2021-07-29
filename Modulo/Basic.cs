@@ -172,6 +172,10 @@ namespace LazyCompilerNeo
                 }
                 node.Add(set);
             }
+            public void ENTRY(XElement node)
+            {
+                node.Add(new XElement(Assembly.ns + "goto").attr("target", $"//lazy[@function='{node.attr("name")}']"));
+            }
         };
     }
 }
