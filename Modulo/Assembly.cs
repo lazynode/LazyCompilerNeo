@@ -74,6 +74,11 @@ namespace LazyCompilerNeo
                 string target = node.attr("target") ?? ".";
                 new ScriptBuilder().Emit(OpCode.CALL_L, BitConverter.GetBytes(0)).construct(node).attr("target", target);
             }
+            public void REMOVABLE(XElement node)
+            {
+                node.lazylize();
+                node.attr("del", "true");
+            }
             // public void MALLOC(XElement node)
             // {
             //     sb.Emit(OpCode.INITSSLOT, new byte[] { byte.Parse(node.Attribute("n").Value) });
