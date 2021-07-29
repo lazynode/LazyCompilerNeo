@@ -127,6 +127,7 @@ namespace LazyCompilerNeo
             {
                 XElement get = new XElement(Compiler.lazy, node.Descendants(ns + nameof(GET).ToLower()).Reverse().ToList());
                 XElement set = new XElement(Compiler.lazy, node.Descendants(ns + nameof(SET).ToLower()).ToList());
+                node.root().Descendants().Where(v => v.Name == ns + nameof(FUNC).ToLower()).Where(v => v.attr("inline") is not null).Where(v => v.attr("name") == node.attr("name")).ToList().ForEach(v => v.compile());
                 XElement target = node.XPathSelectElement($"//lazy[@function='{node.attr("name")}']");
                 node.Elements().Remove();
                 node.Add(get);
@@ -136,7 +137,9 @@ namespace LazyCompilerNeo
                 }
                 else
                 {
-                    target.ElementsAfterSelf().ToList().ForEach(v => node.Add(new XElement(v)));
+                    XElement func = new(Compiler.lazy);
+                    target.ElementsAfterSelf().ToList().ForEach(v => func.Add(new XElement(v)));
+                    node.Add(func);
                 }
                 node.Add(set);
             }
