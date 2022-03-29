@@ -1,0 +1,3 @@
+<lazy xmlns:a="Assembly">
+    <a:string val="Hello, world!" />
+</lazy>
