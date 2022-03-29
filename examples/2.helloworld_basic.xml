@@ -1,0 +1,3 @@
+<lazy xmlns:b="Basic">
+    <b:literal type="string" val="Hello, world!" />
+</lazy>

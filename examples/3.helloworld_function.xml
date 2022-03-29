@@ -1,0 +1,38 @@
+<lazy xmlns:b="Basic">
+    <b:entry name="main" />
+
+    <b:func name="main">
+        <b:var name="obj" />
+        <b:var name="result" />
+
+        <b:literal type="string" val="world" />
+        <b:save name="obj" />
+
+        <b:exec name="do">
+            <b:literal type="string" val="Hello" />
+            <b:load type="var" name="obj" />
+            <b:save type="var" name="result" />
+        </b:exec>
+
+        <b:load name="result" />
+        <b:return />
+    </b:func>
+
+    <b:func name="do">
+        <b:arg name="action" />
+        <b:arg name="object" />
+        <b:var name="result" />
+
+        <b:load type="arg" name="action" />
+        <b:literal type="string" val=", " />
+        <cat />
+        <b:load type="arg" name="object" />
+        <cat />
+        <b:literal type="string" val="!" />
+        <cat />
+        <b:save type="var" name="result" />
+        <b:return>
+            <b:load type="var" name="result" />
+        </b:return>
+    </b:func>
+</lazy>

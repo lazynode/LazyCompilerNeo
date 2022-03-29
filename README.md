@@ -118,7 +118,6 @@ Therefore, the first byte of the oprand should be 13 (0x0d) for `Hello, world!`.
 
 All syntax sugers are showed below. Those attributes who have default values will be list in `${attri}=${default}` format in the second column. Those nodes who can have a body will be showed in `<${node}><lazy/></${node}>` format in the third column. The `<lazy/>` in the third column could be replaced with any other node[s].
 
-Attribute `cond`'s value can be chosen from `if`, `ifnot`, `eq`, `ne`, `gt`, `ge`, `lt`, `le`. **Note!!! Note!!! Note!!!** Those who contains `cond` will pop the value from the stack, please `<dup/>` the value if you want to use it again.
 
 node  | attributes | example          | description
 ----- | ---------- | ---------------  | -------
@@ -147,25 +146,43 @@ There are some features provided by **Basic** nodes.
 
 node  | attributes | example          | description
 ----- | ---------- | ---------------  | -------
-func   | name,inline | `<b:func name="main"><lazy/></b:func>`  | defines a function, vars stands for the local variable number while args stands for the argument number; func's attribute **args** and **vars** are kept for internal usage only
-arg   | name        | `<b:arg name="id"/>`  | must be a **func** node's child, this stands for a argument, better placed in the start of a func's body
-var   | name        | `<b:var name="temp" />`  | must be a **func** node's child, this stands for a local variable, better placed in the start of a func's body
 literal   | datatype=[int|bool|string|bytes],val  | `<b:literal datatype="string" val="Hello, world!/>`  | put a literal onto the stack
-load   | name,type=[var|arg] | `<b:load type="arg" name="id" />`  | load the parent node funtion's argument or local variable
-save   | name,type=[var|arg] | `<b:save type="arg" name="id"/>`  | pop a value on the stack and save it into parent node funtion's argument or local variable
 if   | name,type=[var|arg] | `<b:if type="arg" name="id"><lazy/></b:if>` | if the varable can be converted to true, the body will be executed, vice verse
 else   | name,type=[var|arg] | `<b:else type="arg" name="id"><lazy/></b:else>`  | if the varable can be converted to false, the body will be executed, vice verse
 dowhile   | name,type=[var|arg] | `<b:dowhile  type="arg" name="id"><lazy/></b:dowhile>`  | if the varable can be converted to true, the body will be looped, the body will be exected at least once
 while   | name,type=[var|arg] | `<b:while   type="arg" name="id"><lazy/></b:while>`  | if the varable can be converted to true, the body will be looped
-return   | - | `<b:return />`  | return from a function, advanced usage can be explored with **get** node as its children
-exec   | name | `<b:exec name="main"/>`  | call a function
-entry   | name        | `<b:entry name="main" />`  | `entry` must be the first child of the root node, the entry function must contains no argument
+ | | |
+func   | name,inline | `<b:func name="main"><lazy/></b:func>`  | defines a function, vars stands for the local variable number while args stands for the argument number; do not leave any new data on the evaluation stack after `func`'s execution, return the data using `return` node; don't use inline, as its behavier is complicated
+arg   | name        | `<b:arg name="id"/>`  | must be a `func` node's child, this stands for a argument, better placed in the start of a func's body
+var   | name        | `<b:var name="temp" />`  | must be a `func` node's child, this stands for a local variable, better placed in the start of a func's body
+load   | name,type=[var|arg] | `<b:load type="arg" name="id" />`  | load the parent node funtion's argument or local variable
+save   | name,type=[var|arg] | `<b:save type="arg" name="id"/>`  | pop a value on the stack and save it into parent node funtion's argument or local variable
+return   | - | `<b:return />`  | return from a function, the returned value should be `load` in `return`'s body
+exec   | name | `<b:exec name="main"/>`  | call a function, you can parse the argument in `exec`'s body using `load`, and accept the returned value using `save` in `exec`'s body
+entry   | name | `<b:entry name="main" />`  | `entry` must be the first child of the root node, the entry function must contains no argument
 get   | - | - | internal use only
 set   | - | - | internal use only
 
-## keywords
+## attribute keywords
+
+Other than these keywords, any identifiers can be used in any node, they'll have no meaning in compile time.
+
+### kept keywords
 
 below are kept keywords, internal use only
 
-* `target`: as an attribute, used for address calculation
-* `del`: as an attribute, indicate the node can be removed
+* `id`: mark a location, used for address calculation
+* `target`: mark a destination, used for address calculation
+* `del`: indicate the node can be removed
+* `args`: used for `func`, indicate its arguments number
+* `vars`: used for `func`, indicate its local variables number
+
+### common attributes
+
+below are some common attributes can be found in many nodes
+
+* `oprand`: used in opcode nodes, have different meaning under differnet nodes, refer to docs [here](https://docs.neo.org/docs/en-us/reference/neo_vm.html)
+* `cond`: its value can be chosen from `if`, `ifnot`, `eq`, `ne`, `gt`, `ge`, `lt`, `le`. **Note!!! Note!!! Note!!!** Those who contains `cond` will pop the value from the stack, please `<dup/>` the value if you want to use it/them again on the stack.
+* `val`: used in literal nodes, indicate the value
+* `name`: used as functions, varaibles or some other things' identifier
+* `type`: when used in functions, its value can be chosen from `arg`, `var`, `literal`; when used in literal node, its value can be `int`, `string`, `bytes`, `bool`
