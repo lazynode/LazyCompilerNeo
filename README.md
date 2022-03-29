@@ -147,16 +147,16 @@ There are some features provided by **Basic** nodes.
 node  | attributes | example          | description
 ----- | ---------- | ---------------  | -------
 literal   | datatype=[int|bool|string|bytes],val  | `<b:literal datatype="string" val="Hello, world!/>`  | put a literal onto the stack
-if   | name,type=[var|arg] | `<b:if type="arg" name="id"><lazy/></b:if>` | if the varable can be converted to true, the body will be executed, vice verse
-else   | name,type=[var|arg] | `<b:else type="arg" name="id"><lazy/></b:else>`  | if the varable can be converted to false, the body will be executed, vice verse
-dowhile   | name,type=[var|arg] | `<b:dowhile  type="arg" name="id"><lazy/></b:dowhile>`  | if the varable can be converted to true, the body will be looped, the body will be exected at least once
-while   | name,type=[var|arg] | `<b:while   type="arg" name="id"><lazy/></b:while>`  | if the varable can be converted to true, the body will be looped
+if   | name,type | `<b:if type="arg" name="id"><lazy/></b:if>` | if the varable can be converted to true, the body will be executed, vice verse
+else   | name,type | `<b:else type="arg" name="id"><lazy/></b:else>`  | if the varable can be converted to false, the body will be executed, vice verse
+dowhile   | name,type | `<b:dowhile  type="arg" name="id"><lazy/></b:dowhile>`  | if the varable can be converted to true, the body will be looped, the body will be exected at least once
+while   | name,type | `<b:while   type="arg" name="id"><lazy/></b:while>`  | if the varable can be converted to true, the body will be looped
  | | |
 func   | name,inline | `<b:func name="main"><lazy/></b:func>`  | defines a function, vars stands for the local variable number while args stands for the argument number; do not leave any new data on the evaluation stack after `func`'s execution, return the data using `return` node; don't use inline, as its behavier is complicated
 arg   | name        | `<b:arg name="id"/>`  | must be a `func` node's child, this stands for a argument, better placed in the start of a func's body
 var   | name        | `<b:var name="temp" />`  | must be a `func` node's child, this stands for a local variable, better placed in the start of a func's body
-load   | name,type=[var|arg] | `<b:load type="arg" name="id" />`  | load the parent node funtion's argument or local variable
-save   | name,type=[var|arg] | `<b:save type="arg" name="id"/>`  | pop a value on the stack and save it into parent node funtion's argument or local variable
+load   | name,type | `<b:load type="arg" name="id" />`  | load the parent node funtion's argument or local variable
+save   | name,type | `<b:save type="arg" name="id"/>`  | pop a value on the stack and save it into parent node funtion's argument or local variable
 return   | - | `<b:return />`  | return from a function, the returned value should be `load` in `return`'s body
 exec   | name | `<b:exec name="main"/>`  | call a function, you can parse the argument in `exec`'s body using `load`, and accept the returned value using `save` in `exec`'s body
 entry   | name | `<b:entry name="main" />`  | `entry` must be the first child of the root node, the entry function must contains no argument
@@ -259,4 +259,4 @@ Therefore, we can construct two structs where each struct contains 1000 large st
 </b:dowhile>
 ```
 
-In the fourth example, the main function's core is the loop, it tests equality in every loop. Therefore, the time consumed will be `loop_times * 65535 * 10000`. But the GAS consumed is a little. The DDOS attack complete.
+In the fourth example, the main function's core is the loop, it tests equality in every loop. Therefore, the time consumed will be `loop_times * 65535 * 10000`. But the GAS consumed is a little. The DOS attack complete.

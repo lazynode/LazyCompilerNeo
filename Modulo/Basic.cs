@@ -106,6 +106,9 @@ namespace LazyCompilerNeo
                 XElement func = node;
                 while (func.Name.NamespaceName != ns || func.Name.LocalName != nameof(FUNC).ToLower())
                 {
+                    if (func.Descendants().Any() && func.Descendants().First().attr("function") != null) {
+                        break;
+                    }
                     func = func.Parent;
                 }
                 XElement ret = func.XPathSelectElement($"./lazy/lazy[@name='{node.attr("name")}'{(node.attr("type") is null ? "" : $" and @type='{node.attr("type")}'")}]");
