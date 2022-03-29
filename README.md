@@ -130,12 +130,13 @@ bool  | val        | `<a:bool val="true" />`  | put an **Boolean** literal onto 
 dowhile | cond=if | `<a:dowhile><lazy/></a:dowhile>` | this constructs a dowhile loop in its body, in the end of every loop, it will pop a value on the stack, if it's true, the loop will continue
 while | cond=if | `<a:while cond="eq"><lazy/></a:while>` | this constructs a while loop in its body, in the start of every loop, it will pop two values on the stack, if they're equal, the loop will continue
 if | - | `<a:if><lazy/></a:if>` | pop a value on the stack, if it's true, the body will be executed, vice versa
-else | - | `<a:else><lazy/></a:else>` | must used after the `if` node, will be executed if the value is not true
+else | - | `<a:else><lazy/></a:else>` | pop a value on the stack, if it's false, the body will be executed, vice versa
  | | |
 syscall | name | `<a:syscall name= "System.Storage.Get" />` | this will construct a system call, the name can be chosen from [here](https://docs.neo.org/docs/en-us/reference/scapi/interop.html)
 contractcall | flag=All,method,hash | `<a:contractcall hash="${STDLIB'S HASH}" method="jsonSerialize" />` | a convenience format for syscall `System.Contract.Call`, the example calls the stdlib's json serialize method, the hash hould be 0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0
-
-There also exist tree other nodes (goto,invoke,removable), which we do not recommend using. If you use, you'd better understand the compiler's code.
+goto   | - | - | internal use only
+invoke   | - | - | internal use only
+removable   | - | - | internal use only
 
 ### basic node
 
@@ -146,18 +147,25 @@ There are some features provided by **Basic** nodes.
 
 node  | attributes | example          | description
 ----- | ---------- | ---------------  | -------
-func   | TODO        | `<b:todo />`  | TODO
-arg   | TODO        | `<b:todo />`  | TODO
-var   | TODO        | `<b:todo />`  | TODO
-get   | TODO        | `<b:todo />`  | TODO
-set   | TODO        | `<b:todo />`  | TODO
-literal   | TODO        | `<b:todo />`  | TODO
-load   | TODO        | `<b:todo />`  | TODO
-save   | TODO        | `<b:todo />`  | TODO
-if   | TODO        | `<b:todo />`  | TODO
-else   | TODO        | `<b:todo />`  | TODO
-dowhile   | TODO        | `<b:todo />`  | TODO
-while   | TODO        | `<b:todo />`  | TODO
-return   | TODO        | `<b:todo />`  | TODO
-exec   | TODO        | `<b:todo />`  | TODO
-entry   | TODO        | `<b:todo />`  | TODO
+func   | name,inline | `<b:func name="main"><lazy/></b:func>`  | defines a function, vars stands for the local variable number while args stands for the argument number; func's attribute **args** and **vars** are kept for internal usage only
+arg   | name        | `<b:arg name="id"/>`  | must be a **func** node's child, this stands for a argument, better placed in the start of a func's body
+var   | name        | `<b:var name="temp" />`  | must be a **func** node's child, this stands for a local variable, better placed in the start of a func's body
+literal   | datatype=[int|bool|string|bytes],val  | `<b:literal datatype="string" val="Hello, world!/>`  | put a literal onto the stack
+load   | name,type=[var|arg] | `<b:load type="arg" name="id" />`  | load the parent node funtion's argument or local variable
+save   | name,type=[var|arg] | `<b:save type="arg" name="id"/>`  | pop a value on the stack and save it into parent node funtion's argument or local variable
+if   | name,type=[var|arg] | `<b:if type="arg" name="id"><lazy/></b:if>` | if the varable can be converted to true, the body will be executed, vice verse
+else   | name,type=[var|arg] | `<b:else type="arg" name="id"><lazy/></b:else>`  | if the varable can be converted to false, the body will be executed, vice verse
+dowhile   | name,type=[var|arg] | `<b:dowhile  type="arg" name="id"><lazy/></b:dowhile>`  | if the varable can be converted to true, the body will be looped, the body will be exected at least once
+while   | name,type=[var|arg] | `<b:while   type="arg" name="id"><lazy/></b:while>`  | if the varable can be converted to true, the body will be looped
+return   | - | `<b:return />`  | return from a function, advanced usage can be explored with **get** node as its children
+exec   | name | `<b:exec name="main"/>`  | call a function
+entry   | name        | `<b:entry name="main" />`  | `entry` must be the first child of the root node, the entry function must contains no argument
+get   | - | - | internal use only
+set   | - | - | internal use only
+
+## keywords
+
+below are kept keywords, internal use only
+
+* `target`: as an attribute, used for address calculation
+* `del`: as an attribute, indicate the node can be removed
