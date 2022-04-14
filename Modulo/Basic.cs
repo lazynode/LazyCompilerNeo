@@ -106,6 +106,9 @@ namespace LazyCompilerNeo
                 XElement func = node;
                 while (func.Name.NamespaceName != ns || func.Name.LocalName != nameof(FUNC).ToLower())
                 {
+                    if (func.Descendants().Any() && func.Descendants().First().attr("function") != null) {
+                        break;
+                    }
                     func = func.Parent;
                 }
                 XElement ret = func.XPathSelectElement($"./lazy/lazy[@name='{node.attr("name")}'{(node.attr("type") is null ? "" : $" and @type='{node.attr("type")}'")}]");
@@ -152,15 +155,15 @@ namespace LazyCompilerNeo
             }
             public void RETURN(XElement node)
             {
-                XElement get = new XElement(Compiler.lazy, node.Descendants(ns + nameof(GET).ToLower()).Reverse().ToList());
+                XElement get = new XElement(Compiler.lazy, node.Descendants().Where(v => v.Name.Equals(ns + nameof(GET).ToLower()) || v.Name.Equals(ns + nameof(LOAD).ToLower()) || v.Name.Equals(ns + nameof(LITERAL).ToLower()) || v.Name.ToString().StartsWith("ld") || v.Name.Equals(Assembly.ns+"int".ToLower())|| v.Name.Equals(Assembly.ns+"string".ToLower())|| v.Name.Equals(Assembly.ns+"bytes".ToLower())|| v.Name.Equals(Assembly.ns+"bool".ToLower()) || v.Name.ToString().StartsWith("push") ).Reverse().ToList());
                 node.Elements().Remove();
                 node.Add(get);
                 node.Add(new ScriptBuilder().Emit(OpCode.RET).construct(new XElement(Compiler.lazy)));
             }
             public void EXEC(XElement node)
             {
-                XElement get = new XElement(Compiler.lazy, node.Descendants(ns + nameof(GET).ToLower()).Reverse().ToList());
-                XElement set = new XElement(Compiler.lazy, node.Descendants(ns + nameof(SET).ToLower()).ToList());
+                XElement get = new XElement(Compiler.lazy, node.Descendants().Where(v => v.Name.Equals(ns + nameof(GET).ToLower()) || v.Name.Equals(ns + nameof(LOAD).ToLower()) || v.Name.Equals(ns + nameof(LITERAL).ToLower()) || v.Name.ToString().StartsWith("ld") || v.Name.Equals(Assembly.ns+"int".ToLower())|| v.Name.Equals(Assembly.ns+"string".ToLower())|| v.Name.Equals(Assembly.ns+"bytes".ToLower())|| v.Name.Equals(Assembly.ns+"bool".ToLower()) || v.Name.ToString().StartsWith("push") ).Reverse().ToList());
+                XElement set = new XElement(Compiler.lazy, node.Descendants().Where(v => v.Name.Equals(ns + nameof(SET).ToLower()) || v.Name.Equals(ns + nameof(SAVE).ToLower()) || v.Name.ToString().StartsWith("st")  ).ToList());
                 node.root().Descendants().Where(v => v.Name == ns + nameof(FUNC).ToLower()).Where(v => v.attr("inline") is not null).Where(v => v.attr("name") == node.attr("name")).ToList().ForEach(v => v.compile());
                 XElement target = node.XPathSelectElement($"//lazy[@function='{node.attr("name")}']");
                 node.Elements().Remove();
