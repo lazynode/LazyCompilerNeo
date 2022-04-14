@@ -15,7 +15,7 @@
             <b:save type="var" name="s2" />
         </b:exec>
 
-        <a:int val="10000" />
+        <a:int val="100000" />
         <b:save type="var" name="tmp" />
         <b:dowhile type="var" name="tmp">
             <b:load type="var" name="s1" />

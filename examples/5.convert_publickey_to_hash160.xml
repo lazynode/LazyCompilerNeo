@@ -1,0 +1,4 @@
+<lazy xmlns:a="Assembly">
+    <a:bytes val="02cc10d0e929ca752cfd3408bedda06463e2d93fd435e4c2b86a895b3792dee4c8" />
+    <a:syscall name= "System.Contract.CreateStandardAccount" />
+</lazy>
